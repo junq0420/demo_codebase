@@ -20,18 +20,30 @@ int update_file(const char *filename, const char *search_str, const char *replac
 void config_file(const char *filename, GameSetting *gs);
 void copy_file(const char *src, const char *dest);
 
+int update_file_fixed(const char *filename, const char *search_str, const char *replaced_str);
+
 
 int main(void)
 {
-	// const char *filename = "./game_setting.bin";
+	const char *filename = "./test.txt";
 	// GameSetting gs = { 0.75, 1920, 1080, 2 };
 
 	// config_file(filename, &gs);
 
-	const char *src = "./test.txt";
-	const char *dest = "./cp_test.txt";
+	// const char *src = "./test.txt";
+	// const char *dest = "./cp_test.txt";
+	//
+	// copy_file(src, dest);
 
-	copy_file(src, dest);
+	const char *old = "Engine cooldown";
+	const char *new = "2025-09-10 14:33:10 [INFO] This is a replaced string for test the update_file_fixed function";
+
+	if (update_file_fixed(filename, old, new) == 1) {
+		puts("Found the strintg in the file and replaced it successfully!");
+	} else {
+		puts("Not found string in the file");
+	}
+	
 
 	return 0;
 }
@@ -234,4 +246,97 @@ void copy_file(const char *src, const char *dest) {
 
 	fclose(src_ptr);
 	fclose(dest_ptr);
+}
+
+int update_file_fixed(const char *filename, const char *search_str, const char *replaced_str) {
+	if (filename == NULL || search_str == NULL || replaced_str == NULL) {
+		perror("filename, search_str or replaced_str is null");
+		exit(EINVAL);
+	}
+
+	FILE *fp = NULL;
+	int res = 0; // record the result for reading and writing
+	int found = 0;// is found about searched string
+	
+	fp = fopen(filename, "r+");
+	if (fp == NULL) {
+		fprintf(stderr, "Error opening file: %s\n", strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	long file_size = 0;
+	fseek(fp, 0, SEEK_END); // set fp to the end of file
+	file_size = ftell(fp);
+	rewind(fp);
+
+	// allocate temp buffer to save the content of file
+	char *temp = (char *)malloc(file_size + 1);
+	if (temp == NULL) {
+		perror("Failed to malloc for temp");
+		fclose(fp);
+		exit(EXIT_FAILURE);
+	}
+
+	res = fread(temp, sizeof(char), file_size, fp); // read file to temp buffer
+	if (res != 0) { printf("read %d bytes from %s\n", res, filename); }
+	temp[file_size] = '\0';
+	rewind(fp); 
+
+	long pos = 0;
+	long search_line_size = 0;
+	char buffer[BUFFER_SIZE];
+	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+		if (ferror(fp)) {
+			free(temp);
+			fclose(fp);
+			perror("Error reading file\n");
+			exit(EXIT_FAILURE);
+		}
+		// find the beginning of the line where search_str is located
+		if (strstr(buffer, search_str) != NULL) {
+			search_line_size = strlen(buffer);
+			pos = ftell(fp);
+			pos -= search_line_size;
+			found = 1;
+			break;
+		}
+
+		memset(buffer, 0, BUFFER_SIZE);
+	}
+	rewind(fp);// reset fp to start point for subsequent rewriting of the file
+
+
+	if (found) {
+		size_t search_str_len = strlen(search_str);
+		size_t replaced_str_len = strlen(replaced_str);
+
+		size_t prev_size = (size_t)pos;
+		size_t remain_size = (size_t)(file_size - prev_size - search_line_size);
+
+		res = fwrite(temp, prev_size, 1, fp);// write the content before the search_str to file
+		if (res != 0) { printf("write %d bytes to %s\n", res, filename); }
+		if (ferror(fp)) {
+			free(temp);
+			fclose(fp);
+			perror("Error fwrite file");
+			exit(EXIT_FAILURE);
+		}
+
+		fprintf(fp, "%s", replaced_str);// write the replaced_str to file
+		fputc('\n', fp);
+
+		res = fwrite(temp + prev_size + search_line_size, remain_size, 1, fp);
+		if (res != 0) { printf("write %d bytes to %s\n", res, filename); }
+		if (ferror(fp)) {
+			free(temp);
+			fclose(fp);
+			perror("Error fwrite file");
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	free(temp);
+	fclose(fp);
+
+	return found;
 }

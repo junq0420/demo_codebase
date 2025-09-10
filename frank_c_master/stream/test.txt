@@ -1,4 +1,9 @@
-tom
-jerry
-hollyfuck!
-iiiiiiiiiiiiii
+2025-09-10 14:32:15 [INFO] Genset control system initialized
+2025-09-10 14:32:45 [INFO] Genset started, engine speed 1500 RPM, voltage 415V
+2025-09-10 14:33:00 [INFO] Genset synchronized with utility grid
+2025-09-10 14:33:10 [INFO] This is a replaced string for test the update_file_fixed function
+2025-09-10 14:33:12 [WARN] Reverse kW detected: -12.5 kW (power flow reversed)
+2025-09-10 14:33:13 [ALARM] Reverse power protection activated
+2025-09-10 14:33:14 [INFO] Genset breaker opened automatically
+2025-09-10 14:33:10 [INFO] This is a replaced string for test the update_file_fixed function
+2025-09-10 14:35:00 [INFO] Genset shutdown completed
