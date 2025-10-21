@@ -1,0 +1,6 @@
+[2025-09-25 01:22:59] [INFO] Application initializing... 
+[2025-09-25 01:22:59] [INFO] start to exexute application.
+[2025-09-25 01:22:59] [INFO] successfully allocate memory for data, now setting value.
+[2025-09-25 01:22:59] [INFO] successfully set value for data.
+[2025-09-25 01:22:59] [DEBUG] Finish application execution.
+[2025-09-25 01:22:59] [DEBUG] application ready to exit.
