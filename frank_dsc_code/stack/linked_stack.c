@@ -100,8 +100,8 @@ static void memory_pool_free(MemoryPool *pool, Node *node)
 
 Stack *stack_create(size_t memory_pool_capacity, size_t element_size, FreeFunc free_func)
 {
-    if (free_func == NULL || memory_pool_capacity == 0 || element_size == 0) {
-        perror("Invalid free_func, memory_pool_capacity or element_size");
+    if (memory_pool_capacity == 0 || element_size == 0) {
+        perror("Invalid memory_pool_capacity or element_size");
         return NULL;
     }
     
